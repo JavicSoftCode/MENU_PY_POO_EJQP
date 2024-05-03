@@ -74,16 +74,15 @@ class CrudClients(ICrud, ABC):
     dni = input("\n\033[92m Ingresar número de cédula \033[0m\033[97m=> \033[0m").strip()
     if ' ' in dni or not dni.isdigit() or len(dni) != 10:
         return "Formato correcto 10 dígitos numéricos completos. Sin espacios en medio."
-
+    
     data = json_file.read()
-    if data:
-        clients = json.loads(data)
-    else:
-        clients = []
 
-    for client in clients:
-        if client["dni"] == dni:
-            return "No se puede registrar el cliente porque ya existe uno con esa cédula. " 
+    clients = json.loads(data) if data else []
+
+    existing_client = list(map(lambda client: client["dni"] == dni, clients))
+
+    if any(existing_client):
+        return "No se puede registrar el cliente porque ya existe uno con esa cédula."
 
     first_name = input("\n\033[92m Ingresar nombres completos \033[0m\033[97m=> \033[0m").strip()
     if not all(c.isalpha() or c.isspace() for c in first_name) or len(first_name.split()) != 2 or any(len(name) < 3 for name in first_name.split()):
@@ -296,7 +295,7 @@ class CrudProducts(ICrud):
 
     products_data = json.loads(json_file.read() or '[]')
     
-    if any(product["id"] == id for product in products_data):
+    if any(map(lambda product: product["id"] == id, products_data)):
         return "Ya existe un producto con este ID."
 
     descripcion = input("\n\033[92m Ingresar descripción del producto \033[0m\033[97m=> \033[0m").strip()
