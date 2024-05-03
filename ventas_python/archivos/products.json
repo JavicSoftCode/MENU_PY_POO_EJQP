@@ -1,0 +1,14 @@
+[
+    {
+        "id": "1",
+        "descripcion": "televisor",
+        "precio": 500.0,
+        "stock": 20
+    },
+    {
+        "id": "2",
+        "descripcion": "mouse",
+        "precio": 400.0,
+        "stock": 10
+    }
+]

@@ -1,0 +1,34 @@
+[
+    {
+        "factura": 1,
+        "Fecha": "2024-05-01",
+        "cliente": "daniela lesly rumazo chica",
+        "subtotal": 222000.0,
+        "descuento": 22200.0,
+        "iva": 23976.0,
+        "total": 223776.0,
+        "detalle": [
+            {
+                "poducto": "mouse",
+                "precio": 400.0,
+                "cantidad": 555
+            }
+        ]
+    },
+    {
+        "factura": 2,
+        "Fecha": "2024-05-01",
+        "cliente": "daniela lesly rumazo chica",
+        "subtotal": 1111000.0,
+        "descuento": 111100.0,
+        "iva": 119988.0,
+        "total": 1119888.0,
+        "detalle": [
+            {
+                "poducto": "televisor",
+                "precio": 500.0,
+                "cantidad": 2222
+            }
+        ]
+    }
+]
