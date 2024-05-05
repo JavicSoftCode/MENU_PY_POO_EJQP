@@ -63,6 +63,23 @@ def findInvoice(facturas, numero):
 def sortInvoices(facturas, orden):
     return sorted(facturas, key=lambda x: x['total'], reverse=(orden == 'max'))
 
+def validateCedula(dni):
+    if ' ' in dni or not dni.isdigit() or len(dni) != 10:
+        return False
+    else:
+        suma = 0
+        for i, digito in enumerate(dni[:-1]):
+            multiplicador = 2 if i % 2 == 0 else 1
+            producto = int(digito) * multiplicador
+            if producto >= 10:
+                producto -= 9
+            suma += producto
+        residuo = suma % 10
+        if residuo == 0:
+            residuo = 10
+        verificador = 10 - residuo
+        return verificador == int(dni[-1])
+    
 class CrudClients(ICrud, ABC):
   @message_decorator
   def create(self):
@@ -72,7 +89,7 @@ class CrudClients(ICrud, ABC):
     print('\033[1m\033[4m\033[97mRegistrando cliente.\033[0m')
 
     dni = input("\n\033[92m Ingresar número de cédula \033[0m\033[97m=> \033[0m").strip()
-    if ' ' in dni or not dni.isdigit() or len(dni) != 10:
+    if validateCedula(dni):
         return "Formato correcto 10 dígitos numéricos completos. Sin espacios en medio."
     
     data = json_file.read()
@@ -92,7 +109,7 @@ class CrudClients(ICrud, ABC):
     if not all(c.isalpha() or c.isspace() for c in last_name) or len(last_name.split()) != 2 or any(len(lastname) < 3 for lastname in last_name.split()):
         return "Ingresar apellidos completos. Cada apellido debe tener más de 2 caracteres. Números y símbolos, NO."
 
-    cliente = input("\n\033[92m Cliente : Regular o Vip \033[0m\033[97m=> \033[0m").lower()
+    cliente = input("\n\033[92m Cliente : Regular o Vip \033[0m\033[97m=> \033[0m").lower().strip()
     if not all(c.isalpha() or c.isspace() for c in cliente) or any(len(cliente) < 3 for cliente in cliente.split()):
         return "Regular o Vip. Regular o Vip debe tener más de 2 caracteres. Números y símbolos, NO."
     
@@ -123,7 +140,7 @@ class CrudClients(ICrud, ABC):
     print('\n\033[1m\033[4m\033[97mActualizar datos del cliente.\033[0m')
 
     dni = input("\n\033[92m Ingresar número de cédula, para actualizar datos del cliente \033[0m\033[97m=> \033[0m").strip()
-    if ' ' in dni or not dni.isdigit() or len(dni) != 10:
+    if validateCedula(dni):
         return "Formato correcto 10 dígitos numéricos completos. --- 🚨 ERROR: Sin espacios en medio."
 
     old_clients = json.loads(json_file.read() or '[]')
@@ -158,7 +175,7 @@ class CrudClients(ICrud, ABC):
                 print('\n\033[1m\033[4m\033[97mActualizando datos del cliente.\033[0m')
 
                 new_dni = input("\n\033[92m Ingresar número de cédula \033[0m\033[97m=> \033[0m").strip()
-                if ' ' in new_dni or not new_dni.isdigit() or len(new_dni) != 10:
+                if validateCedula(dni):
                     return "Formato correcto 10 dígitos numéricos completos. Sin espacios en medio."
 
                 if new_dni != found_client["dni"]:
@@ -207,7 +224,7 @@ class CrudClients(ICrud, ABC):
     print('\n\033[1m\033[4m\033[97mEliminará los datos del cliente.\033[0m')
     
     dni = input("\n\033[92m Ingresar número de cédula, para eliminar los datos del cliente \033[0m\033[97m=> \033[0m").strip()
-    if ' ' in dni or not dni.isdigit() or len(dni) != 10:
+    if validateCedula(dni):
         return "Formato correcto 10 dígitos numéricos completos. --- 🚨 ERROR: Sin espacios en medio."
 
     old_clients = json.loads(json_file.read() or "[]")
@@ -246,7 +263,7 @@ class CrudClients(ICrud, ABC):
     print('\033[1m\033[4m\033[97mConsulta datos del cliente.\033[0m')
     
     dni = input("\n\033[92m Ingresar número de cédula, para consultar los datos del cliente \033[0m\033[97m=> \033[0m").strip()
-    if ' ' in dni or not dni.isdigit() or len(dni) != 10:
+    if validateCedula(dni):
         return "Formato correcto 10 dígitos numéricos completos. --- 🚨 ERROR: Sin espacios en medio."
 
     old_clients = json.loads(json_file.read() or "[]")
@@ -269,14 +286,11 @@ class CrudClients(ICrud, ABC):
                 client = VipClient(client_data["first_name"], client_data["last_name"], client_data["dni"])
                 client.limit = client_data["valor"]  
                 tipo_cliente = "Cliente VIP"
-            print(f"\033[92m DNI \033[97m=>\033[0m {client.dni}")
-            print(f"\033[92m Nombres \033[97m=>\033[0m {client.first_name}")
-            print(f"\033[92m Apellidos \033[97m=>\033[0m {client.last_name}")
-            if isinstance(client, VipClient):
-                print(f"\033[92m Crédito \033[97m=>\033[0m {client.limit}")
-            else:
-                print(f"\033[92m Descuento \033[97m=>\033[0m {client.discount}")
-            print(f"\033[92m Tipo de Cliente \033[97m=>\033[0m {tipo_cliente}")
+            data = [
+                ["DNI", "Nombres", "Apellidos", "Limite del crédito" if isinstance(client, VipClient) else "Descuento", "Tipo de Cliente"],
+                [client.dni, client.first_name, client.last_name, client.limit if isinstance(client, VipClient) else client.discount, tipo_cliente]
+            ]
+            print(tabulate(data, tablefmt='grid'))
         input("\n\033[1;4;97m⬅️  Enter para salir\033[0m")
     else:
         print("\n\033[1;4;97m🔴 No se encontró al cliente.\033[0m")

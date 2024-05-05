@@ -10,5 +10,11 @@
         "first_name": "daniela lesly",
         "last_name": "rumazo chica",
         "valor": 15000.0
+    },
+    {
+        "dni": "0940126212",
+        "nombre": "aaa aaa",
+        "apellido": "aaaa aaa",
+        "valor": 20000
     }
 ]
