@@ -101,7 +101,7 @@ class Sale(Icalculo):
                    "total": self.total, "detalle": []}
         for det in self.sale_detail:
             invoice["detalle"].append(
-                {"poducto": det.product.descrip,
+                {"producto": det.product.descrip,
                  "precio": det.preci,
                  "cantidad": det.quantity}
             )

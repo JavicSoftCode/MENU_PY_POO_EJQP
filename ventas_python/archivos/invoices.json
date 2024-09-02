@@ -1,33 +1,43 @@
 [
     {
         "factura": 1,
-        "Fecha": "2024-05-01",
-        "cliente": "daniela lesly rumazo chica",
-        "subtotal": 222000.0,
-        "descuento": 22200.0,
-        "iva": 23976.0,
-        "total": 223776.0,
+        "Fecha": "2024-09-01",
+        "cliente": "Daniel Alexander Vera Paredes",
+        "subtotal": 2500.0,
+        "descuento": 250.0,
+        "iva": 270.0,
+        "total": 2520.0,
         "detalle": [
             {
-                "poducto": "mouse",
-                "precio": 400.0,
-                "cantidad": 555
+                "producto": "Laptop",
+                "precio": 250.0,
+                "cantidad": 5
+            },
+            {
+                "producto": "Peluche",
+                "precio": 250.0,
+                "cantidad": 5
             }
         ]
     },
     {
         "factura": 2,
-        "Fecha": "2024-05-01",
-        "cliente": "daniela lesly rumazo chica",
-        "subtotal": 1111000.0,
-        "descuento": 111100.0,
-        "iva": 119988.0,
-        "total": 1119888.0,
+        "Fecha": "2024-09-01",
+        "cliente": "Eduardo Javier Quinteros Pacheco",
+        "subtotal": 3250.0,
+        "descuento": 325.0,
+        "iva": 351.0,
+        "total": 3276.0,
         "detalle": [
             {
-                "poducto": "televisor",
-                "precio": 500.0,
-                "cantidad": 2222
+                "producto": "Mouse",
+                "precio": 250.0,
+                "cantidad": 10
+            },
+            {
+                "producto": "Laptop",
+                "precio": 250.0,
+                "cantidad": 2
             }
         ]
     }

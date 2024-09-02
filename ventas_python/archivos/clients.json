@@ -1,20 +1,26 @@
 [
     {
-        "dni": "0910203040",
-        "first_name": "eduardo javier",
-        "last_name": "quinteros pacheco",
-        "valor": 0.1
+        "dni": "0914192182",
+        "first_name": "Daniel Alexander",
+        "last_name": "Vera Paredes",
+        "discount": 0.1
     },
     {
-        "dni": "0950607080",
-        "first_name": "daniela lesly",
-        "last_name": "rumazo chica",
-        "valor": 15000.0
+        "dni": "0913118709",
+        "first_name": "Gina Mercez",
+        "last_name": "Pacheco Morocho",
+        "discount": 0.1
     },
     {
         "dni": "0940126212",
-        "nombre": "aaa aaa",
-        "apellido": "aaaa aaa",
-        "valor": 20000
+        "first_name": "Eduardo Javier",
+        "last_name": "Quinteros Pacheco",
+        "limit": 15000.0
+    },
+    {
+        "dni": "0940126220",
+        "first_name": "Daniela Lesly",
+        "last_name": "Rumazo Chica",
+        "limit": 10000
     }
 ]

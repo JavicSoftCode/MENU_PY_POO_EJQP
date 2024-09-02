@@ -1,14 +1,26 @@
 [
     {
         "id": "1",
-        "descripcion": "televisor",
-        "precio": 500.0,
-        "stock": 20
+        "descrip": "Laptop",
+        "preci": 250.0,
+        "stock": 13
     },
     {
         "id": "2",
-        "descripcion": "mouse",
-        "precio": 400.0,
+        "descrip": "Peluche",
+        "preci": 250.0,
+        "stock": 15
+    },
+    {
+        "id": "3",
+        "descrip": "Mouse",
+        "preci": 250.0,
         "stock": 10
+    },
+    {
+        "id": "4",
+        "descrip": "Monitor",
+        "preci": 250.0,
+        "stock": 0
     }
 ]

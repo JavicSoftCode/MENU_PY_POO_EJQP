@@ -55,7 +55,12 @@ class RegularClient(Client):
     
   def getJson(self):
     # Método para imprimir los detalles del cliente minorista en la consola
-    return {"dni": self.dni, "nombre": self.first_name, "apellido": self.last_name, "valor": self.discount}
+        return {
+            "dni": self.dni,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "discount": self.discount
+        }
 
 
 class VipClient(Client):
@@ -84,8 +89,12 @@ class VipClient(Client):
     
   def getJson(self):
     # Método para imprimir los detalles del cliente VIP en la consola
-    return {"dni": self.dni, "nombre": self.first_name, "apellido": self.last_name, "valor": self.limit}
-
+      return {
+            "dni": self.dni,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "limit": self.limit
+        }
 
 class JsonFile:
     def __init__(self, file_path):
