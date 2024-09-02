@@ -1,17 +1,5 @@
 [
     {
-        "dni": "0914192182",
-        "first_name": "Daniel Alexander",
-        "last_name": "Vera Paredes",
-        "discount": 0.1
-    },
-    {
-        "dni": "0913118709",
-        "first_name": "Gina Mercez",
-        "last_name": "Pacheco Morocho",
-        "discount": 0.1
-    },
-    {
         "dni": "0940126212",
         "first_name": "Eduardo Javier",
         "last_name": "Quinteros Pacheco",
@@ -19,8 +7,8 @@
     },
     {
         "dni": "0940126220",
-        "first_name": "Daniela Lesly",
-        "last_name": "Rumazo Chica",
-        "limit": 10000
+        "first_name": "Gina Nicole",
+        "last_name": "Quinteros Pacheco",
+        "discount": 0.1
     }
 ]

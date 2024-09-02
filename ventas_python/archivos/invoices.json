@@ -1,43 +1,49 @@
 [
     {
         "factura": 1,
-        "Fecha": "2024-09-01",
-        "cliente": "Daniel Alexander Vera Paredes",
-        "subtotal": 2500.0,
-        "descuento": 250.0,
-        "iva": 270.0,
-        "total": 2520.0,
+        "Fecha": "2024-09-02",
+        "cliente": "Eduardo Javier Quinteros Pacheco",
+        "subtotal": 3750.0,
+        "descuento": 375.0,
+        "iva": 405.0,
+        "total": 3780.0,
         "detalle": [
             {
-                "producto": "Laptop",
-                "precio": 250.0,
-                "cantidad": 5
-            },
-            {
-                "producto": "Peluche",
-                "precio": 250.0,
+                "producto": "TV Samsung",
+                "precio": 750.0,
                 "cantidad": 5
             }
         ]
     },
     {
         "factura": 2,
-        "Fecha": "2024-09-01",
-        "cliente": "Eduardo Javier Quinteros Pacheco",
-        "subtotal": 3250.0,
-        "descuento": 325.0,
-        "iva": 351.0,
-        "total": 3276.0,
+        "Fecha": "2024-09-02",
+        "cliente": "Gina Nicole Quinteros Pacheco",
+        "subtotal": 9500.0,
+        "descuento": 950.0,
+        "iva": 1026.0,
+        "total": 9576.0,
         "detalle": [
             {
-                "producto": "Mouse",
-                "precio": 250.0,
+                "producto": "Monitor Apple",
+                "precio": 950.0,
                 "cantidad": 10
-            },
+            }
+        ]
+    },
+    {
+        "factura": 3,
+        "Fecha": "2024-09-02",
+        "cliente": "Eduardo Javier Quinteros Pacheco",
+        "subtotal": 3750.0,
+        "descuento": 375.0,
+        "iva": 405.0,
+        "total": 3780.0,
+        "detalle": [
             {
-                "producto": "Laptop",
-                "precio": 250.0,
-                "cantidad": 2
+                "producto": "TV Samsung",
+                "precio": 750.0,
+                "cantidad": 5
             }
         ]
     }

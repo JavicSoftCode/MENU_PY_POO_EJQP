@@ -82,6 +82,277 @@ def validateCedula(dni):
             residuo = 10
         verificador = 10 - residuo
         return verificador == int(dni[-1])
+
+def validateRuc(ruc):
+    ruc = str(ruc)
+
+    # Verificar que sea numérico y que tenga exactamente 13 dígitos
+    if not ruc.isdigit() or len(ruc) != 13:
+        return False
+
+    # Verificar que los tres últimos dígitos sean '001'
+    if ruc[-3:] != '001':
+        return False
+
+    # Coeficientes usados en el cálculo
+    coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2]
+
+    total = 0
+
+    # Calcular el total usando los coeficientes
+    for i in range(9):
+        digito = int(ruc[i])
+        coeficiente = coeficientes[i]
+        producto = digito * coeficiente
+
+        # Ajustar si el producto es mayor que 9
+        if producto > 9:
+            producto -= 9
+
+        total += producto
+
+    # Calcular el dígito verificador
+    digito_verificador = (total * 9) % 10
+
+    # Verificar si el décimo dígito coincide con el dígito verificador calculado
+    return digito_verificador == int(ruc[9])
+
+class CrudCompany(ICrud, ABC):
+    @message_decorator
+    def create(self):
+        json_file_path = path + '/archivos/companies.json'
+        json_file = JsonFile(json_file_path)
+
+        print('\033[1m\033[4m\033[97mRegistrando compañía.\033[0m')
+
+        while True:
+            # Solicitar el RUC e invalidar si no es válido o ya existe
+            ruc = input("\n\033[92m Ingresar RUC \033[0m\033[97m=> \033[0m").strip()
+            if not validateRuc(ruc):
+                print("\033[97mRUC inválido. Por favor, intente de nuevo.\033[0m")
+                continue
+
+            # Leer el archivo JSON y manejar el caso en que el archivo no exista o esté vacío
+            if os.path.exists(json_file_path) and os.path.getsize(json_file_path) > 0:
+                data = json_file.read()
+                try:
+                    companies = json.loads(data)
+                    # Asegurarse de que 'companies' sea una lista de diccionarios
+                    if isinstance(companies, dict):
+                        companies = [companies]
+                    # Obtener el ID máximo para el próximo ID
+                    max_id = max((company.get("id", 0) for company in companies), default=0)
+                    Company.next = max_id
+                except json.JSONDecodeError:
+                    companies = []  # Si hay un error en el archivo JSON, inicializar como lista vacía
+                    Company.next = 0
+            else:
+                companies = []  # Si el archivo no existe o está vacío, inicializar como lista vacía
+                Company.next = 0
+
+            # Verificar si ya existe una compañía con el mismo RUC
+            existing_company = list(filter(lambda company: company.get("ruc") == ruc, companies))
+
+            if existing_company:
+                print("\033[97mYa existe una compañía con ese RUC. Por favor, ingrese un RUC diferente.\033[0m")
+                continue
+
+            # Si el RUC es válido y no existe, se solicita el nombre de la empresa
+            business_name = input("\n\033[92m Ingresar nombre de la compañía \033[0m\033[97m=> \033[0m").strip()
+            if not business_name:
+                return "Nombre de la compañía no puede estar vacío."
+
+            # Verificar si ya existe una compañía con el mismo nombre
+            existing_name = list(filter(
+                lambda company: company.get("bussines_name", "").lower() == business_name.lower() or
+                                 company.get("rasonsocial", "").lower() == business_name.lower(),
+                companies
+            ))
+
+            if existing_name:
+                return "No se puede registrar la compañía porque ya existe una con ese nombre."
+
+            # Crear y mostrar la compañía
+            company = Company(name=business_name, ruc=ruc)
+            borrarPantalla()
+            company.show()
+
+            # Confirmar si se deben guardar los datos
+            if input("\033[1m\033[4m\033[97m\n¿Desea guardar los datos? (YES/NO) => \033[0m").lower() == 'yes':
+                companies.append(company.getJson())
+                json_file.write(json.dumps(companies, indent=4))
+                print("\n\n \033[97m🟢 Compañía guardada. \033[0m")
+            else:
+                print("\n\n \033[97m🔴 Compañía no guardada. \033[0m")
+
+            time.sleep(2)
+            return None
+
+    @message_decorator
+    def update(self):
+        json_file_path = path + '/archivos/companies.json'
+        json_file = JsonFile(json_file_path)
+    
+        print('\n\033[1m\033[4m\033[97mActualizar datos de la compañía.\033[0m')
+    
+        ruc = input("\n\033[92m Ingresar RUC de la compañía para actualizar \033[0m\033[97m=> \033[0m").strip()
+    
+        if not validateRuc(ruc):
+            return "🚨 ERROR: Formato de RUC incorrecto. Debe contener 13 dígitos numéricos."
+    
+        old_companies = json.loads(json_file.read() or '[]')
+        found_company = next((company for company in old_companies if company['ruc'] == ruc), None)
+    
+        if found_company is None:
+            return "🚷 Compañía no encontrada."
+    
+        borrarPantalla()
+        print('\033[1m\033[4m\033[97mVerificación de datos de la Empresa.\033[0m')
+
+        print(f"\033[92m\n ID \033[97m=> \033[0m {found_company['id']} \n\033[92m Nombre \033[97m=> \033[0m {found_company.get('rasonsocial', 'No Disponible')}\n\033[92m RUC \033[97m=> \033[0m {found_company['ruc']}\n\033")
+
+        print("\n\033[97m\033[1m\033[4mEnter para actualizar o ESC para cancelar \033[0m")
+
+        while True:
+            if msvcrt.kbhit():
+                entrada = msvcrt.getch()
+    
+                if entrada == b"\x1b":  # ESC para cancelar
+                    print()
+                    return "\033[91;4m❌ Actualización cancelada.\033[0m"
+                    time.sleep(1)
+                    break
+                
+                elif entrada == b"\r":  # ENTER para confirmar
+                    borrarPantalla()
+                    print('\n\033[1m\033[4m\033[97mActualizando datos de la compañía.\033[0m')
+    
+                    business_name = input("\n\033[92m Ingresar nuevo nombre de la compañía \033[0m\033[97m=> \033[0m").strip()
+                    if not business_name:
+                        return "🚨 Nombre de la compañía no puede estar vacío."
+    
+                    # Verificar si el nuevo nombre ya está en uso por otra compañía
+                    existing_name = next(
+                        (company for company in old_companies
+                         if company.get("rasonsocial", "").lower() == business_name.lower()
+                         and company["ruc"] != ruc), None
+                    )
+    
+                    if existing_name:
+                        return "🚨 No se puede actualizar el nombre de la compañía porque ya existe una con ese nombre."
+    
+                    # Actualizar el nombre de la compañía encontrada
+                    found_company["rasonsocial"] = business_name
+    
+                    json_file.write(json.dumps(old_companies, indent=4))
+    
+                    print("\n\033[92;4m✅ Actualización completada.\033[0m")
+                    time.sleep(2)
+                    break
+
+    @message_decorator
+    def delete(self):
+        json_file_path = path + '/archivos/companies.json'
+        json_file = JsonFile(json_file_path)
+
+        print('\n\033[1m\033[4m\033[97mEliminará los datos de la compañía.\033[0m')
+
+        ruc = input("\n\033[92m Ingresar RUC de la compañía para eliminar \033[0m\033[97m=> \033[0m").strip()
+
+        if not validateRuc(ruc):
+            return "🚨 Error en el RUC. Asegúrese de que tenga 13 dígitos numéricos completos."
+
+        old_companies = json.loads(json_file.read() or "[]")
+
+        company_to_delete = next((company for company in old_companies if company["ruc"] == ruc), None)
+
+        if not company_to_delete:
+            return "🚷 Compañía no encontrada."
+
+        borrarPantalla()
+        print("\033[97m\033[1m\033[4m✅ Verificar Datos\033[0m")
+        print("\n\033[92m RUC \033[97m=>\033[0m", ruc)
+        print("\033[92m Nombre \033[97m=>\033[0m", company_to_delete["rasonsocial"])
+
+        aceptar = input("\n\033[97m\033[1m\033[4m¿Eliminar los datos de la compañía? (YES/NO) => \033[0m").lower()
+
+        if aceptar == 'yes':
+            print("\n⬇️")
+            print("\033[97m\033[4m🟢 Datos de la compañía eliminados.\033[0m")
+            updated_companies = list(filter(lambda company: company["ruc"] != ruc, old_companies))
+            json_file.write(json.dumps(updated_companies, indent=4))
+            time.sleep(2)
+        else:
+            print("\n⬇️")
+            print("\033[97m\033[4m🔴 Eliminación cancelada.\033[0m")
+            time.sleep(2)
+
+    @message_decorator
+    def consult(self):
+        json_file_path = path + '/archivos/companies.json'
+        json_file = JsonFile(json_file_path)
+
+        while True:
+            borrarPantalla()
+            print('\033[1m\033[4m\033[97mConsulta datos de la compañía.\033[0m')
+
+            accion = input("\n\033[92m Presione Enter para consultar una compañía específica, 'all' para mostrar todas o 's' para salir: \033[0m\033[97m=> \033[0m").strip()
+
+            if accion == "":
+                borrarPantalla()
+                print('\033[1m\033[4m\033[97mConsulta datos de la compañía.\033[0m')
+                ruc = input("\n\033[92m Ingresar RUC de la compañía para consultar \033[0m\033[97m=> \033[0m").strip()
+
+                if not validateRuc(ruc):
+                    print("🚨 Error en el RUC. Asegúrese de que tenga 13 dígitos numéricos completos.")
+                    time.sleep(2)
+                    continue
+
+                companies = json.loads(json_file.read() or "[]")
+                found_company = next((company for company in companies if company["ruc"] == ruc), None)
+
+                if found_company:
+                    borrarPantalla()
+                    print("\033[97m\033[1m\033[4m✅ Datos encontrados\033[0m")
+                    data = [
+                        ["ID", "Nombre", "RUC"],
+                        [found_company["id"], found_company["rasonsocial"], found_company["ruc"]]
+                    ]
+                    print()
+                    print(tabulate(data, tablefmt='grid'))
+                else:
+                    print("🚷 Compañía no encontrada.")
+
+                input("\n\033[1;4;97m⬅️  Enter para continuar\033[0m")
+                continue
+
+            elif accion == "all":
+                companies = json.loads(json_file.read() or "[]")
+
+                if companies:
+                    borrarPantalla()
+                    print("\033[97m\033[1m\033[4m✅ Datos de todas las Compañías\033[0m")
+                    for company in companies:
+                        data = [
+                            ["ID", "Nombre", "RUC"],
+                            [company["id"], company["rasonsocial"], company["ruc"]]
+                        ]
+                        print()
+                        print(tabulate(data, tablefmt='grid'))
+                        print("\n")  # Añadir una línea en blanco entre las tablas
+                else:
+                    print("JSON VACÍO")
+
+                input("\n\033[1;4;97m⬅️  Enter para continuar\033[0m")
+                continue
+
+            elif accion == "s":
+                break
+
+            else:
+                print("\033[91m\033[4m🚨 ERROR: Acción no reconocida. Por favor, intente de nuevo.\033[0m")
+                input("\nPresione Enter para continuar.")
+                continue
     
 class CrudClients(ICrud, ABC):
   @message_decorator
@@ -451,11 +722,11 @@ class CrudProducts(ICrud):
             return "Ya existe un producto con este ID."
 
         descripcion = input("\n\033[92m Ingresar descripción del producto \033[0m\033[97m=> \033[0m").strip()
-        if not all(c.isalpha() or c.isspace() for c in descripcion) or any(len(descrip) < 3 for descrip in descripcion.split()):
-            return "Ingresar productos existentes. --- 🚨 ERROR: Cada nombre del producto debe tener > 2 caracteres. --- 🚨 ERROR: Números y símbolos, NO."
+        if not all(c.isalpha() or c.isspace() for c in descripcion) or any(len(descrip) < 2 for descrip in descripcion.split()):
+            return "🚨 ERROR: Cada nombre del producto debe tener > 2 caracteres. --- 🚨 ERROR: Números y símbolos, NO."
 
         descripcion_lower = descripcion.lower()
-        if any(product["descripcion"].lower() == descripcion_lower for product in products_data):
+        if any(product["descrip"].lower() == descripcion_lower for product in products_data):
             return "Ya existe un producto con esta descripción. --- 🚨 ERROR: No se puede registrar el producto."
 
         precio = input("\n\033[92m Ingresar precio del producto \033[0m\033[97m=> \033[0m").strip()
@@ -528,7 +799,7 @@ class CrudProducts(ICrud):
 
                 while True:
                     descripcion = input("\n\033[92m Ingresar descripción del producto \033[0m\033[97m=> \033[0m").strip()
-                    if not all(c.isalpha() or c.isspace() for c in descripcion) or any(len(descrip) < 3 for descrip in descripcion.split()):
+                    if not all(c.isalpha() or c.isspace() for c in descripcion) or any(len(descrip) < 2 for descrip in descripcion.split()):
                         return "🚨 ERROR: Cada nombre del producto debe tener > 2 caracteres y no debe contener números o símbolos."
                     else:
                         # Verificar si la descripción ya existe en otro producto
@@ -1244,11 +1515,99 @@ class CrudSales(ICrud):
             time.sleep(2)
 
 opc = ''
-while opc != '4':
+while opc != '5':
     borrarPantalla()
-    menu_main = Menu("💻 Menu Facturacion", [" 1) Clientes", " 2) Productos", " 3) Ventas", " 4) Salir"], 20, 10)
+    menu_main = Menu("💻 Menu Facturación", [" 1) Empresa", " 2) Clientes", " 3) Productos", " 4) Ventas", " 5) Salir"], 20, 10)
     opc = menu_main.menu()
-    if opc == "1":
+    
+    if opc == "1":  # Menú Empresa
+        opc_company = ''
+        while opc_company != '5':
+            borrarPantalla()
+            menu_company = Menu("🏢 Menu Empresa", [" 1) Ingresar", " 2) Actualizar", " 3) Eliminar", " 4) Consultar", " 5) Salir"], 20, 10)
+            opc_company = menu_company.menu()
+            
+            if opc_company == "1":
+                borrarPantalla()
+                print("\033[1;4;97m🚨 Seguro de agregar una nueva empresa.\033[1;4;31m❓\033[0m")
+                print("\n\033[1;97mPresione \033[4;97mESC\033[0;1;97m para cancelar o \033[4;97mEnter\033[0;1;97m para continuar.\033[0m")
+                
+                while True:
+                    if msvcrt.kbhit():  
+                        entrada = msvcrt.getch()  
+                        if entrada == b"\x1b": 
+                            print("\n\033[91;4m❌ Operación cancelada.\033[0m")
+                            time.sleep(2)
+                            break
+                        elif entrada == b"\r":  
+                            crud_company = CrudCompany()
+                            crud_company.create()
+                            break
+                        else:
+                            print("\n\033[91m\033[4m🚨 Opción inválida. Presione ESC para cancelar o Enter para continuar.\033[0m")
+                time.sleep(2)
+
+            elif opc_company == "2":
+                borrarPantalla()
+                print("\033[1;4;97m🚨 Seguro de actualizar datos de la empresa.\033[1;4;31m❓\033[0m")
+                print("\n\033[1;97mPresione \033[4;97mESC\033[0;1;97m para cancelar o \033[4;97mEnter\033[0;1;97m para continuar.\033[0m")
+                
+                while True:
+                    if msvcrt.kbhit():
+                        entrada = msvcrt.getch()
+                        if entrada == b"\x1b":
+                            print("\n\033[91;4m❌ Operación cancelada.\033[0m")
+                            time.sleep(2)
+                            break
+                        elif entrada == b"\r":
+                            crud_company = CrudCompany()
+                            crud_company.update()
+                            break
+                        else:
+                            print("\n\033[91m\033[4m🚨 Opción inválida. Presione ESC para cancelar o Enter para continuar.\033[0m")
+                time.sleep(2)
+
+            elif opc_company == "3":
+                borrarPantalla()
+                print("\033[1;4;97m🚨 Seguro de eliminar datos de la empresa.\033[1;4;31m❓\033[0m")
+                print("\n\033[1;97mPresione \033[4;97mESC\033[0;1;97m para cancelar o \033[4;97mEnter\033[0;1;97m para continuar.\033[0m")
+                
+                while True:
+                    if msvcrt.kbhit():
+                        entrada = msvcrt.getch()
+                        if entrada == b"\x1b":
+                            print("\n\033[91;4m❌ Operación cancelada.\033[0m")
+                            time.sleep(2)
+                            break
+                        elif entrada == b"\r":
+                            crud_company = CrudCompany()
+                            crud_company.delete()
+                            break
+                        else:
+                            print("\n\033[91m\033[4m🚨 Opción inválida. Presione ESC para cancelar o Enter para continuar.\033[0m")
+                time.sleep(2)
+
+            elif opc_company == "4":
+                borrarPantalla()
+                print("\033[1;4;97m🚨 Consulta datos de la empresa.\033[1;4;31m ❗\033[0m")
+                print("\n\033[1;97mPresione \033[4;97mESC\033[0;1;97m para cancelar o \033[4;97mEnter\033[0;1;97m para continuar.\033[0m")
+                
+                while True:
+                    if msvcrt.kbhit():
+                        entrada = msvcrt.getch()
+                        if entrada == b"\x1b":
+                            print("\n\033[91;4m❌ Operación cancelada.\033[0m")
+                            time.sleep(1)
+                            break
+                        elif entrada == b"\r":
+                            crud_company = CrudCompany()
+                            crud_company.consult()
+                            break
+                        else:
+                            print("\n\033[91m\033[4m🚨 Opción inválida. Presione ESC para cancelar o Enter para continuar.\033[0m")
+                time.sleep(2)
+                
+    elif opc == "2":
         opc1 = ''
         while opc1 != '5':
             borrarPantalla()
@@ -1335,7 +1694,7 @@ while opc != '4':
                             print("\n\033[91m\033[4m🚨 Opción inválida. Presione ESC para cancelar o Enter para continuar.\033[0m")
                 time.sleep(2)
                      
-    elif opc == "2":
+    elif opc == "3":
         opc2 = ''
         while opc2 != '5':
             borrarPantalla()
@@ -1419,7 +1778,7 @@ while opc != '4':
                         else:
                             print("\n\033[91m\033[4m🚨 Opción inválida. Presione ESC para cancelar o Enter para continuar.\033[0m")
 
-    elif opc == "3":
+    elif opc == "4":
         opc3 = ''
         while opc3 != '5':
             borrarPantalla()

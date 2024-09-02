@@ -1,5 +1,12 @@
- {
-    "id":1, 
-    "bussines_name": "SuperMaxi", 
-    "ruc":"0857565667001"
- }
+[
+    {
+        "id": 1,
+        "rasonsocial": "Samsung",
+        "ruc": "0940126212001"
+    },
+    {
+        "id": 2,
+        "rasonsocial": "Apple",
+        "ruc": "0940126220001"
+    }
+]
